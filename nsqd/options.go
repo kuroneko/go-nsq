@@ -77,6 +77,27 @@ type Options struct {
 	Logger Logger
 }
 
+func generateDefaultBroadcastAddress() (mybcastAddr string) {
+	mybcastAddr, err := os.Hostname()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	ifaces, err := net.InterfaceAddrs()
+	if err == nil {
+		for _, k := range ifaces {
+			thisIp := net.ParseIP(k.String())
+			if thisIp.IsLoopback() {
+				continue
+			}
+			mybcastAddr = k.String()
+			break
+		}
+	}
+	return mycastAddr
+
+}
+
 func NewOptions() *Options {
 	hostname, err := os.Hostname()
 	if err != nil {
@@ -94,7 +115,7 @@ func NewOptions() *Options {
 		TCPAddress:       "0.0.0.0:4150",
 		HTTPAddress:      "0.0.0.0:4151",
 		HTTPSAddress:     "0.0.0.0:4152",
-		BroadcastAddress: hostname,
+		BroadcastAddress: generateDefaultBroadcastAddress(),
 
 		NSQLookupdTCPAddresses: make([]string, 0),
 		AuthHTTPAddresses:      make([]string, 0),
